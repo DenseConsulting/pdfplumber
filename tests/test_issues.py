@@ -9,6 +9,8 @@ except ModuleNotFoundError:
     resource = None
 import unittest
 
+import pytest
+
 import pdfplumber
 
 logging.disable(logging.ERROR)
@@ -281,25 +283,6 @@ class Test(unittest.TestCase):
             words = " ".join(w["text"] for w in page.extract_words(use_text_flow=True))
             assert text[0:100] == words[0:100]
 
-    def test_issue_1089(self):
-        """
-        Page.to_image() leaks file descriptors
-
-        This is because PyPdfium2 leaks file descriptors.  Explicitly
-        close the `PdfDocument` to prevent this.
-        """
-        # Skip test on platforms without getrlimit
-        if resource is None:
-            return
-        # Any PDF will do
-        path = os.path.join(HERE, "pdfs/test-punkt.pdf")
-        soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
-        with pdfplumber.open(path) as pdf:
-            for idx in range(soft):
-                _ = pdf.pages[0].to_image()
-        # We're still alive
-        assert True
-
     def test_issue_1147(self):
         """
         Edge-case for when decode_text is passed a string
@@ -332,3 +315,26 @@ class Test(unittest.TestCase):
                 ["Bar10", "Bar11", "Bar12"],
                 ["", "", ""],
             ]
+
+    def test_pr_1195(self):
+        """
+        In certain scenarios, annotations may include invalid or extraneous
+        data that can obstruct the annotation processing workflow.  To mitigate
+        this, the raise_unicode_errors parameter in the PDF initializer and the
+        .open() method provides a configurable option to bypass these errors
+        and generate warnings instead, ensuring smoother handling of such
+        anomalies.
+
+        The following tests verifies the functionality of the
+        raise_unicode_errors parameter.
+        """
+        path = os.path.join(HERE, "pdfs/annotations-unicode-issues.pdf")
+        with pdfplumber.open(path) as pdf, pytest.raises(UnicodeDecodeError):
+            for _ in pdf.annots:
+                pass
+
+        with pdfplumber.open(path, raise_unicode_errors=False) as pdf, pytest.warns(
+            UserWarning
+        ):
+            for _ in pdf.annots:
+                pass

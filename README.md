@@ -47,7 +47,7 @@ The output will be a CSV containing info about every character, line, and rectan
 
 | Argument | Description |
 |----------|-------------|
-|`--format [format]`| `csv` or `json`. The `json` format returns more information; it includes PDF-level and page-level metadata, plus dictionary-nested attributes.|
+|`--format [format]`| `csv`, `json`, or `text`. The `csv` and `json` formats return information about each object. Of those two, the `json` format returns more information; it includes PDF-level and page-level metadata, plus dictionary-nested attributes. The `text` option returns a plain-text representation of the PDF, using `Page.extract_text(layout=True)`.|
 |`--pages [list of pages]`| A space-delimited, `1`-indexed list of pages or hyphenated page ranges. E.g., `1, 11-15`, which would return data for pages 1, 11, 12, 13, 14, and 15.|
 |`--types [list of object types to extract]`| Choices are `char`, `rect`, `line`, `curve`, `image`, `annot`, et cetera. Defaults to all available.|
 |`--laparams`| A JSON-formatted string (e.g., `'{"detect_vertical": true}'`) to pass to `pdfplumber.open(..., laparams=...)`.|
@@ -274,6 +274,7 @@ Additionally, both `pdfplumber.PDF` and `pdfplumber.Page` provide access to seve
 |`bits`| The number of bits per color component; e.g., 8 corresponds to 255 possible values for each color component (R, G, and B in an RGB color space).|
 |`stream`| Pixel values of the image, as a `pdfminer.pdftypes.PDFStream` object.|
 |`imagemask`| A nullable boolean; if `True`, "specifies that the image data is to be used as a stencil mask for painting in the current color."|
+|`name`| "The name by which this image XObject is referenced in the XObject subdictionary of the current resource dictionary." [🔗](https://ghostscript.com/~robin/pdf_reference17.pdf#page=340) |
 |`mcid`| The [marked content](https://ghostscript.com/~robin/pdf_reference17.pdf#page=850) section ID for this image if any (otherwise `None`). *Experimental attribute.*|
 |`tag`| The [marked content](https://ghostscript.com/~robin/pdf_reference17.pdf#page=850) section tag for this image if any (otherwise `None`). *Experimental attribute.*|
 |`object_type`| "image"|
@@ -354,7 +355,7 @@ Note: The methods above are built on Pillow's [`ImageDraw` methods](http://pillo
 
 ## Extracting tables
 
-`pdfplumber`'s approach to table detection borrows heavily from [Anssi Nurminen's master's thesis](http://dspace.cc.tut.fi/dpub/bitstream/handle/123456789/21520/Nurminen.pdf?sequence=3), and is inspired by [Tabula](https://github.com/tabulapdf/tabula-extractor/issues/16). It works like this:
+`pdfplumber`'s approach to table detection borrows heavily from [Anssi Nurminen's master's thesis](https://trepo.tuni.fi/bitstream/handle/123456789/21520/Nurminen.pdf?sequence=3), and is inspired by [Tabula](https://github.com/tabulapdf/tabula-extractor/issues/16). It works like this:
 
 1. For any given PDF page, find the lines that are (a) explicitly defined and/or (b) implied by the alignment of words on the page.
 2. Merge overlapping, or nearly-overlapping, lines.
@@ -567,6 +568,9 @@ Many thanks to the following users who've contributed ideas, features, and fixes
 - [Quentin André](https://github.com/QuentinAndre11)
 - [Léo Roux](https://github.com/leorouxx)
 - [@wodny](https://github.com/wodny)
+- [Michal Stolarczyk](https://github.com/stolarczyk)
+- [Brandon Roberts](https://github.com/brandonrobertz)
+- [@ennamarie19](https://github.com/ennamarie19)
 
 ## Contributing
 
